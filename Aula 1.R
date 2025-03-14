@@ -11,40 +11,49 @@
 #CARREGAR O PACOTE
 library(WDI)
 
-#BUSCAR DADOS DE ACESSO À ELETRICIDADE EM ÁREAS RURAIS
-dados <- WDI(
-  country = "all", #para todos os países
-  indicator = "EG.ELC.ACCS.RU.ZS",
-  start = 2023,
-  end = 2023,
-  extra = TRUE)
+# Instalar pacotes (se ainda não tiver)
+#install.packages("WDI")
+#install.packages("ggplot2")
+#install.packages("dplyr")
 
-#exibir primeiros registros
-head(dados)
-
-dadosbr <- WDI(
-  country = "BR",
-  indicator = "EG.ELC.ACCS.RU.ZS",
-  start = 2023,
-  end = 2023,extra = TRUE)
-
-# Instalar o pacote WDI (se ainda não tiver)
-install.packages("WDI")
-
-# Carregar o pacote
+# Carregar pacotes
 library(WDI)
+library(ggplot2)
+library(dplyr)
 
-# Buscar os dados para os dois indicadores
-dados2 <- WDI(
-  country = "all",   # "all" para todos os países ou use c("BR", "US") para países específicos
+# Busca dos dados para acesso à eletricidade e uso de energia per capita
+dados <- WDI(
+  country = "all",   
   indicator = c("EG.ELC.ACCS.RU.ZS", "EG.USE.PCAP.KG.OE"),  
-  start = 2000,      # Ano inicial
-  end = 2023,        # Ano final
-  extra = TRUE       # Adiciona informações extras como região e nível de renda
+  start = 2000,      
+  end = 2023,        
+  extra = TRUE      
 )
 
-# Exibir os primeiros registros
-head(dados)
+# Dados do Brasil
 
 brasil <- subset(dados, country == "Brazil")
-head(brasil)
+
+ggplot(brasil, aes(x = year, y = EG.ELC.ACCS.RU.ZS)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(color = "red", size = 2) +
+  labs(
+    title = "Acesso à Eletricidade em Áreas Rurais no Brasil (2000-2023)",
+    x = "Ano",
+    y = "Porcentagem da População (%)"
+  ) +
+  theme_minimal()
+
+#Gráfico de Uso de Energia Per Capita
+
+ggplot(brasil, aes(x = year, y = EG.USE.PCAP.KG.OE)) +
+  geom_line(color = "darkgreen", size = 1) +
+  geom_point(color = "orange", size = 2) +
+  labs(
+    title = "Uso de Energia Per Capita no Brasil (2000-2023)",
+    x = "Ano",
+    y = "kg de óleo equivalente per capita"
+  ) +
+  theme_minimal()
+
+
