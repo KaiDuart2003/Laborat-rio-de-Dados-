@@ -1,0 +1,117 @@
+---
+title: "<span style='font-family:Lobster, cursive;'>Análise Economica</span>"
+subtitle: "<span style='font-size:14px; font-style:italic; text-align:right; display:block;'>Realizado por Kailane Karolina Duarte</span>"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(WDI)
+library(tidyverse)
+```
+
+## Relação entre a Urbanização e Acesso à Eletricidade
+
+Esta pesquisa tem o objetivo de analisar a relação entre o nível de urbanização e o acesso à eletricidade nas principais regiões do globo, utilizando dados do Banco Mundial referentes ao ano de 2019. Por meio de um gráfico de dispersão, observa-se uma correlação positiva entre esses dois indicadores, refletindo o grau de desenvolvimento das infraestruturas urbanas e sua capacidade de fornecer serviços básicos à população.
+
+Regiões como **Europa e Ásia Central**, **Ásia Oriental e Pacífico** e **América Latina e Caribe** apresentam altas taxas de urbanização e níveis quase universais de acesso à eletricidade. Essa convergência reflete políticas públicas eficazes, planejamento urbano consolidado e investimentos contínuos em infraestrutura energética.
+
+::: {style="float: right; width: 300px; margin-left: 15px;"}
+![](Grafico 1.png){alt="Urbanização e Eletricidade" style="border-radius: 10px;"}
+:::
+
+O aumento da taxa de urbanização está frequentemente associado ao maior acesso à eletricidade, especialmente em regiões em desenvolvimento. Com a expansão urbana, investimentos em infraestrutura tornam-se mais viáveis, o que facilita o fornecimento de energia elétrica para populações antes não atendidas. Esse processo contribui diretamente para o crescimento econômico e a melhoria da qualidade de vida nas cidades.
+
+Em contraste, a **África Subsaariana** se destaca pela combinação de baixa urbanização e acesso limitado à eletricidade. Segundo relatório recente do Banco Mundial (2022), cerca de 49% da população da região ainda não possui acesso à rede elétrica, evidenciando a persistência de barreiras estruturais como pobreza, isolamento geográfico e fragilidade institucional.
+
+Destaca-se ainda que o processo de urbanização, por si só, não garante universalização do acesso à eletricidade, mas atua como fator facilitador, ao reduzir os custos médios de fornecimento por meio da concentração populacional. Diante disso, políticas integradas de desenvolvimento urbano e energético são cruciais para mitigar desigualdades inter-regionais.
+
+Iniciativas multilaterais, como o programa **ASCENT**, que visa ampliar o acesso sustentável à energia até 2030, surgem como mecanismos importantes para acelerar o progresso nos países em desenvolvimento.
+
+```{r}
+#| label: Taxa de Urbanização vs Acesso à Eletricidade
+#| warning: false
+#| echo: false
+
+dados_wdi <- WDI(country = "all", 
+                 indicator = c("SP.URB.TOTL.IN.ZS", "EG.ELC.ACCS.ZS"), 
+                 start = 2019, 
+                 end = 2019, 
+                 extra = TRUE)
+
+dados_wdi <- dados_wdi[!is.na(dados_wdi$SP.URB.TOTL.IN.ZS) & 
+                         !is.na(dados_wdi$EG.ELC.ACCS.ZS) & 
+                         !is.na(dados_wdi$region), ]
+
+dados_wdi$region <- factor(dados_wdi$region,
+                           levels = c("East Asia & Pacific", "Europe & Central Asia", 
+                                      "Latin America & Caribbean", "Middle East & North Africa", 
+                                      "North America", "South Asia", "Sub-Saharan Africa"),
+                           labels = c("Ásia Oriental e Pacífico", "Europa e Ásia Central", 
+                                      "América Latina e Caribe", "Oriente Médio e Norte da África", 
+                                      "América do Norte", "Ásia Meridional", "África Subsaariana"))
+
+ggplot(dados_wdi, aes(x = SP.URB.TOTL.IN.ZS, y = EG.ELC.ACCS.ZS, color = region, size = SP.URB.TOTL.IN.ZS)) +
+  geom_point(alpha = 0.7) +
+  scale_color_brewer(palette = "Set1") +
+  scale_size(range = c(2, 10), guide = "none") +
+  labs(title = "Taxa de Urbanização vs. Acesso à Eletricidade (2019)",
+       x = "Taxa de Urbanização (% da população)",
+       y = "Acesso à Eletricidade (% da população)",
+       color = "Região") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 12, face = "bold"),
+        legend.position = "right",
+        legend.title = element_text(size = 10, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+## Transformações no Mercado de Trabalho Sul-Coreano: Uma Análise da Taxa de Participação (2000–2020)
+
+Entre os anos de 2000 e 2020, a taxa de participação na força de trabalho da Coreia do Sul apresentou relativa estabilidade, oscilando em torno de 62% a 64%, com pequenas variações explicadas por mudanças estruturais, demográficas e conjunturais na economia do país. Um dos principais fatores que influenciaram esse comportamento foi o rápido envelhecimento populacional. A Coreia do Sul possui uma das populações que envelhecem mais rapidamente no mundo, o que vem reduzindo gradualmente a parcela da população economicamente ativa e pressionando os indicadores do mercado de trabalho, especialmente a partir da segunda metade da década de 2010.
+
+::: {style="float: right; margin: 10px; width: 300px;"}
+![](Trabalho Coreia.png)
+:::
+
+Em contrapartida, a participação feminina apresentou crescimento ao longo do período, sustentada por políticas de incentivo à inclusão das mulheres no mercado de trabalho, como a ampliação da licença-maternidade, programas de apoio ao retorno após a gravidez e maior escolaridade. Ainda que a taxa feminina permaneça abaixo da média da OCDE, esse avanço ajudou a equilibrar os efeitos negativos do envelhecimento sobre a taxa geral.
+
+O período também foi marcado por eventos econômicos relevantes, como a crise financeira global de 2008, que gerou uma leve retração temporária na participação, seguida por uma recuperação moderada nos anos seguintes. Em 2020, com a chegada da pandemia da COVID-19, observa-se no gráfico uma nova queda, especialmente motivada pelas perdas de emprego entre mulheres, jovens e trabalhadores informais. Apesar disso, a resposta rápida do governo sul-coreano, por meio de estímulos fiscais e programas de suporte ao emprego, contribuiu para evitar um colapso mais severo.
+
+Além disso, ao longo dessas duas décadas, o governo implementou uma série de reformas que flexibilizaram o mercado de trabalho, permitindo maior absorção de mão de obra por meio de empregos temporários, informais e trabalho autônomo. Esse conjunto de medidas foi essencial para manter a taxa de participação em patamar estável, mesmo diante de desafios internos e externos.
+
+A análise do gráfico mostra que a Coreia do Sul conseguiu sustentar sua força de trabalho ativa com certa resiliência, apesar das pressões demográficas e dos choques econômicos. No entanto, o cenário futuro exigirá políticas mais eficazes para enfrentar o envelhecimento populacional e melhorar a qualidade dos empregos disponíveis, garantindo inclusão, produtividade e crescimento sustentável.
+
+```{r}
+#| label: Taxa de participação na Força de Trabalho
+#| warning: false
+#| echo: false
+
+# Buscando dados do WDI para a Coreia do Sul (taxa de participação na força de trabalho)
+dados_wdi <- WDI(country = "KR", # Código ISO2 para Coreia do Sul
+                 indicator = "SL.TLF.CACT.ZS", # Taxa de participação na força de trabalho (%)
+                 start = 2000, 
+                 end = 2020, 
+                 extra = TRUE)
+
+# Removendo valores ausentes
+dados_wdi <- dados_wdi[!is.na(dados_wdi$SL.TLF.CACT.ZS), ]
+
+# Criando o gráfico de série temporal com ggplot2
+ggplot(dados_wdi, aes(x = year, y = SL.TLF.CACT.ZS)) +
+  geom_line(color = "purple", linewidth = 1.2) + # Corrigido aqui
+  geom_point(color = "purple", size = 3, alpha = 0.7) +
+  labs(title = "Taxa de Participação na Força de Trabalho - Coreia do Sul (2000-2020)",
+       x = "Ano",
+       y = "Participação na Força de Trabalho (%)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+        axis.title = element_text(size = 12, face = "bold"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
