@@ -1,0 +1,109 @@
+---
+title: "<span style='font-family: Roboto Slab, serif;'>Evolução da Taxa Selic e da Inflação no Brasil</span>"
+subtitle: "<span style='font-family: Roboto Slab, serif; font-weight:400;'>Uma análise temporal com destaque para os períodos de crise</span>"
+format: html
+editor: visual
+---
+
+<p style="font-family: Roboto Slab, serif; font-style: italic; color: #888; margin-top: 0px;"><em>Kailane Karolina Duarte</em> | Publicado em `r format(Sys.time(), '%d de %B de %Y, %H:%M')`</p>
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+
+library(GetBCBData)
+library(ggplot2)
+library(dplyr)
+library(zoo)
+library(scales)
+library(plotly)
+library(ggforce)
+```
+
+A taxa Selic e o IPCA são indicadores fundamentais para a economia brasileira, refletindo
+a política monetária e a inflação, respectivamente. Durante crises econômicas, como a
+de 2008 e a pandemia, esses indicadores sofreram variações significativas. Este artigo
+investiga as razões por trás dessas flutuações, com foco nas respostas do Banco Central
+do Brasil (BCB) e nos fatores externos e internos que influenciaram a economia.
+
+## A Crise de 2008 e os Impactos Econômicos
+
+A crise financeira global de 2008, desencadeada pelo colapso dos subprimes nos Estados
+Unidos, impactou o Brasil através da redução de exportações e da queda na confiança dos
+investidores. Inicialmente, o IPCA subiu devido a pressões inflacionárias globais, mas logo
+caiu com a desaceleração econômica. O BCB respondeu reduzindo a Selic de cerca de 20% para níveis mais baixos, visando estimular a economia. Essa estratégia foi acompanhada
+por medidas fiscais, como a redução de impostos, que ajudaram a estabilizar a inflação.
+
+## Pandemia e os Desafios de 2020
+
+A pandemia de COVID-19, iniciada em março de 2020, impactou a economia brasileira com choques de oferta e demanda. Interrupções nas cadeias globais, como o fechamento de 60% das fábricas chinesas no início de 2020, e a desvalorização do real (que caiu 30% frente ao dólar em 2020) elevaram o IPCA a 10,67% em novembro de 2021, segundo o IBGE. O Banco Central (BCB) reduziu a Selic a 2% ao ano em agosto de 2020 para estimular a economia, injetando liquidez de cerca de R\$ 1,2 trilhão, conforme dados do BCB. No entanto, o auxílio emergencial de R\$ 300 bilhões aumentou a demanda, mantendo a inflação alta. Assim, o BCB elevou a Selic a 13,75% até 2023 para conter a pressão inflacionária.
+
+```{}
+```
+
+As variações da Selic e do IPCA refletem a interação entre política monetária e choques
+econômicos. Durante crises, o BCB utiliza a Selic para controlar a inflação, enquanto
+o IPCA é impactado por fatores como preços de commodities e câmbio. A análise dos
+períodos de 2008 e 2020 mostra a complexidade de gerenciar esses indicadores em cenários
+de incerteza global.
+
+```{r}
+#| label: Taxa Selic e IPCA 
+#| warning: false
+#| echo: false
+
+# Buscar dados: Selic (432) e IPCA (433)
+selic <- GetBCBData::gbcbd_get_series(id = 432, 
+                                      first.date = as.Date("2005-01-01"), 
+                                      last.date = as.Date("2024-10-31"))
+ipca <- GetBCBData::gbcbd_get_series(id = 433, 
+                                     first.date = as.Date("2005-01-01"), 
+                                     last.date = as.Date("2024-10-31"))
+
+# Renomear colunas
+selic <- selic %>% select(date = ref.date, selic = value)
+ipca <- ipca %>% select(date = ref.date, ipca = value)
+
+# Juntar bases e calcular IPCA acumulado em 12 meses
+dados <- inner_join(selic, ipca, by = "date") %>%
+  mutate(ipca_acum = zoo::rollsum(ipca, 12, fill = NA, align = "right"),
+         periodo = case_when(
+           date >= as.Date("2008-09-15") & date <= as.Date("2009-12-31") ~ "Crise 2008",
+           date >= as.Date("2020-03-11") & date <= as.Date("2021-12-31") ~ "Pandemia",
+           TRUE ~ "Normal"
+         ))
+
+# Gráfico com ggplot2
+p <- ggplot(dados, aes(x = date)) +
+  geom_line(aes(y = selic, color = "Selic"), size = 1) +
+  geom_line(aes(y = ipca_acum, color = "IPCA (12 meses)"), size = 1) +
+  scale_color_manual(values = c("Selic" = "#8B7D6B", "IPCA (12 meses)" = "#808080")) +
+  scale_y_continuous(name = "Selic e IPCA (% a.a.)") +
+  labs(title = "Taxa Selic e IPCA com Crises Históricas (2005-2024)",
+       x = "Data", color = "Indicador") +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom") +
+  geom_vline(xintercept = as.Date("2008-09-15"), linetype = "dashed", color = "#D2691E") +
+  geom_vline(xintercept = as.Date("2020-03-11"), linetype = "dashed", color = "#8B0000") +
+  annotate("text", x = as.Date("2008-09-15"), y = max(dados$selic, na.rm = TRUE) * 0.9,
+           label = "Crise de 2008", hjust = 1.1, color = "#D2691E") +
+  annotate("text", x = as.Date("2020-03-11"), y = max(dados$selic, na.rm = TRUE) * 0.9,
+           label = "Pandemia", hjust = 1.1, color = "#8B0000")
+
+# Gráfico interativo com plotly
+ggplotly(p, tooltip = c("x", "y", "colour")) %>%
+  layout(legend = list(orientation = "h", x = 0.5, y = -0.2,
+                       xanchor = "center", yanchor = "top"))
+
+```
+
+As crises de 2008 e da pandemia de COVID-19 demonstraram a importância da política
+monetária na gestão de indicadores como a Selic e o IPCA. Enquanto a crise de 2008
+exigiu uma resposta rápida para evitar uma recessão profunda, a pandemia destacou a
+necessidade de equilibrar estímulos econômicos e controle inflacionário. Estudos futuros
+podem explorar os impactos de longo prazo dessas políticas no crescimento econômico
+brasileiro.
