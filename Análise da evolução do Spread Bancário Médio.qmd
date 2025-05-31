@@ -1,0 +1,81 @@
+---
+title: "<span style='font-family: Roboto Slab, serif;'>Como o Spread Bancário Evoluiu no Brasil: De Crises a Recuperações (2011-2025)</span>"
+format:
+  html:
+    embed-resources: true
+---
+
+<p style="font-family: Roboto Slab, serif; font-style: italic; color: #888; margin-top: 0px;">
+
+<em>Kailane Karolina Duarte</em> \| Publicado em `r format(Sys.time(), '%d de %B de %Y, %H:%M')`
+
+</p>
+
+```{r}
+#| label: load-packages
+#| include: false
+
+
+library(rbcb)
+library(plotly)
+library(ggplot2)
+library(gganimate)
+library(dplyr)
+library(scales) 
+```
+
+## 📌O que é o Spread Bancário?
+
+O spread bancário representa a **diferença** entre a taxa média de juros cobrada pelos bancos nas novas operações de crédito e o custo de captação dessas instituições. Ou seja, é o “lucro bruto” que os bancos obtêm ao emprestar dinheiro, cobrindo também riscos de inadimplência, impostos e custos operacionais (Banco Central do Brasil, 2024).
+
+## 📈 Análise da Evolução do Spread Bancário no Brasil
+
+Ao longo do período de 2011 a 2025, o spread bancário no Brasil passou por variações que refletem os altos e baixos da economia, as decisões do Banco Central e eventos extraordinários que afetaram o mercado financeiro.
+
+Durante a crise econômica de 2015, o Brasil enfrentou uma recessão profunda, com alta inflação e aumento do risco-país. Isso levou os bancos a elevarem o spread bancário, especialmente para grandes empresas, devido ao aumento da percepção de risco. Segundo o **Valor Econômico**, “o custo do crédito local para as grandes companhias brasileiras subiu de forma rápida e significativa neste início de ano, em meio à percepção dos bancos de que o risco de calote subiu”.
+
+Já em 2020, com a chegada da pandemia de COVID-19, o Banco Central reduziu a taxa Selic para o menor nível da história, 2% ao ano, para tentar estimular a economia. Apesar disso, o spread bancário não caiu proporcionalmente. A **Federação Brasileira de Bancos (Febraban)** destacou que “o peso do custo do crédito no spread é de 40%” e que “grande parte das transações são no parcelado sem juros”, o que aumenta o risco para os emissores de crédito, mantendo o spread elevado mesmo com juros básicos baixos (Valor Econômico).
+
+Em 2022, o Banco Central iniciou um ciclo de aumento da Selic para combater a inflação crescente. Isso resultou em aumento do spread bancário, que atingiu o maior nível desde 2019. O **Valor Econômico** relatou que “o ciclo de aumento da taxa básica de juros e a disposição para tomar mais risco elevaram o prêmio cobrado pelos bancos nos empréstimos - o chamado spread bancário - para o maior patamar em quase três anos”.
+
+No ano seguinte, 2023, houve uma redução nas taxas de juros do crédito rotativo e do cheque especial, refletindo o recuo da Selic e a maior concorrência entre bancos. Dados da **Agência Brasil** indicam que a taxa média de juros cobrada para pessoa física no crédito livre recuou 1,9 ponto percentual em outubro, chegando a 55,4% ao ano.
+
+No entanto, em 2024, o spread bancário para empresas voltou a subir, em função do aumento do risco percebido pelos bancos diante de incertezas econômicas. O **Valor Econômico** informou que “houve aumento de 0,5 ponto na taxa do spread para empresas em 2024 (para 9,2% ao ano), informa o BC”.
+
+Por fim, em 2025, mesmo com os juros finais tendo caído, o spread bancário continuou a subir, segundo o Banco Central. A **Agência Brasil** destacou que “juros finais caem e spread bancário aumenta, diz BC”, o que indica que os bancos estão cobrando mais para compensar o risco e custos operacionais, mesmo com taxas básicas mais baixas.
+
+```{r}
+#| label: Evolução do Spread Bancário Médio
+#| warning: false
+#| echo: false
+
+# Pega os dados
+df <- rbcb::get_series(20783, start_date = "2000-01-01", end_date = Sys.Date())
+
+# Renomeia colunas
+colnames(df) <- c("date", "value")
+
+# Plot animado com valores surgindo
+p <- ggplot(df, aes(x = date, y = value)) +
+  geom_line(color = "brown") +  # Linha marrom
+  geom_point(color = "brown") +  # Pontos marrons
+  geom_text(aes(label = round(value, 2)), vjust = -1.2, size = 3, color = "brown") +  # Valores surgindo
+  labs(title = "Evolução Spread Bancário", x = "Data", y = "Valor") +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    plot.title = element_text(
+      hjust = 0.5,
+      color = "grey50",
+      face = "bold",
+      size = 14
+    )
+  ) +
+  transition_reveal(date)
+
+# Animação
+animate(p, nframes = 150, fps = 10)
+
+```
+
+O spread bancário no Brasil é um termômetro das condições econômicas, da política monetária e do ambiente de risco para os bancos. Ele varia conforme crises, decisões do Banco Central e expectativas do mercado. A análise dos dados entre 2011 e 2025 mostra como o spread responde às mudanças no cenário econômico e financeiro, refletindo tanto o custo do dinheiro quanto o risco assumido pelas instituições financeiras. Entender essa dinâmica é fundamental para consumidores, empresas e formuladores de políticas, pois impacta diretamente o custo do crédito e, consequentemente, a atividade econômica no país.
